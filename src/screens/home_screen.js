@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Pressable, ScrollView} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ProgressCircle from 'react-native-progress-circle';
@@ -9,10 +9,118 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import {BASE_URL, getKey} from '../helpers/user';
 import base64 from 'react-native-base64';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({route, navigation}) => {
-  const ShopId = route.params.ShopId;
+  const [ShopId, setShopId] = useState('');
+  const [doorName, setDoorName] = useState('');
+  const [limit, setLimit] = useState('');
+  const [currentLimit, setCurrentLimit] = useState('');
+  const [perVal, setPerVal] = useState(0);
+  const [circleColor, setCircleColor] = useState('#32a852');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let key = await getKey();
+      if (!key) {
+        navigation.navigate('Home');
+      } else {
+        getDetails();
+      }
+    };
+    fetchData();
+  }, []);
+
+  const getDetails = async () => {
+    let headers = new Headers();
+    headers.append(
+      'Authorization',
+      'Basic ' + base64.encode('apiuser:a22323212'),
+    );
+    if (!key) {
+      navigation.navigate('Home');
+    }
+    let key = await getKey();
+
+    headers.append('Content-Type', 'application/json');
+    fetch(`${BASE_URL}/findDetails/${key}`, {
+      method: 'GET',
+      headers: headers,
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.error) {
+          navigation.navigate('Home');
+        }
+        console.log(json.guard);
+        setCurrentLimit(json.depotCurrentLimit);
+        setLimit(json.depotLimit);
+        setDoorName(json.guard.name);
+        setShopId(route.params.ShopId);
+        calculatePercent(json.depotCurrentLimit, json.depotLimit);
+      });
+  };
+
+  const addOne = async () => {
+    console.log('Add one');
+    let headers = new Headers();
+    headers.append(
+      'Authorization',
+      'Basic ' + base64.encode('apiuser:a22323212'),
+    );
+    headers.append('Content-Type', 'application/json');
+    let key = await getKey();
+    fetch(`${BASE_URL}/plusOne/${key}`, {
+      method: 'GET',
+      headers: headers,
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        // setMessage('Person was let in, recorded successfully');
+        setCurrentLimit(json.depotCurrentLimit);
+        setLimit(json.depotLimit);
+        calculatePercent(json.depotCurrentLimit, json.depotLimit);
+        // if (!json.allowPerson) {
+        //   setMessage(json.notAllowReason);
+        // }
+      });
+  };
+
+  const minusOne = async () => {
+    console.log('minus one');
+    let headers = new Headers();
+    headers.append(
+      'Authorization',
+      'Basic ' + base64.encode('apiuser:a22323212'),
+    );
+    headers.append('Content-Type', 'application/json');
+    let key = await getKey();
+    fetch(`${BASE_URL}/minusOne/${key}`, {
+      method: 'GET',
+      headers: headers,
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        // setMessage('Person was let out, recorded successfully');
+        setCurrentLimit(json.depotCurrentLimit);
+        setLimit(json.depotLimit);
+        calculatePercent(json.depotCurrentLimit, json.depotLimit);
+      });
+  };
+
+  const calculatePercent = (currentLimit, limit) => {
+    percentage_val = (currentLimit * 100) / limit;
+    setPerVal(percentage_val);
+    if (percentage_val >= 33 && percentage_val < 66) {
+      setCircleColor('#d6d306');
+    } else if (percentage_val >= 66 && percentage_val <= 100) {
+      setCircleColor('#d61706');
+    } else {
+      setCircleColor('#32a852');
+    }
+  };
+
   return (
     <LinearGradient
       colors={['#A5FECB', '#20BDFF', '#5433FF']}
@@ -21,7 +129,7 @@ const HomeScreen = ({route, navigation}) => {
         contentContainerStyle={{paddingBottom: 20}}
         showsVerticalScrollIndicator={false}>
         <View style={[styles.cardContainer, {marginTop: 70}]}>
-          <Text style={styles.cardText}>Door Name :</Text>
+          <Text style={styles.cardText}>Door Name : {doorName}</Text>
         </View>
 
         <View style={[styles.cardContainer, {marginTop: 20}]}>
@@ -30,14 +138,16 @@ const HomeScreen = ({route, navigation}) => {
 
         <View style={styles.progressBarContainer}>
           <ProgressCircle
-            percent={20}
+            percent={perVal}
             radius={100}
             borderWidth={8}
             color="#0B3684"
             shadowColor="#e6e1f0"
-            bgColor={colors.primary}>
+            bgColor={circleColor}>
             <View style={styles.progressTextContainer}>
-              <Text style={styles.progressText}>12/50</Text>
+              <Text style={styles.progressText}>
+                {currentLimit}/{limit}
+              </Text>
             </View>
           </ProgressCircle>
         </View>
@@ -52,12 +162,12 @@ const HomeScreen = ({route, navigation}) => {
                 borderBottomLeftRadius: 15,
               },
             ]}
-            android_ripple={{color: 'rgba(0,0,0,0.1)'}}>
+            android_ripple={{color: 'rgba(0,0,0,0.1)'}}
+            onPress={() => minusOne()}>
             <MaterialCommunityIcons
               name="minus"
               size={40}
               color={colors.primary}
-              onPress={() => null}
             />
           </Pressable>
 
@@ -70,13 +180,9 @@ const HomeScreen = ({route, navigation}) => {
                 borderBottomRightRadius: 15,
               },
             ]}
-            android_ripple={{color: 'rgba(0,0,0,0.1)'}}>
-            <MaterialIcons
-              name="add"
-              size={40}
-              color={colors.primary}
-              onPress={() => null}
-            />
+            android_ripple={{color: 'rgba(0,0,0,0.1)'}}
+            onPress={() => addOne()}>
+            <MaterialIcons name="add" size={40} color={colors.primary} />
           </Pressable>
         </View>
       </ScrollView>

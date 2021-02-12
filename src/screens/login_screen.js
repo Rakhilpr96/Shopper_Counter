@@ -119,6 +119,7 @@ const LoginScreen = ({navigation}) => {
             <TextInput
               style={styles.textInputFied}
               placeholder="Enter password"
+              secureTextEntry={true}
               onFocus={() => {
                 setTypingPassword(true);
                 setTypingEmail(false);
