@@ -1,8 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Pressable, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ProgressCircle from 'react-native-progress-circle';
 import colors from '../config/colors';
+import messaging from '@react-native-firebase/messaging';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -25,6 +33,41 @@ const HomeScreen = ({route, navigation}) => {
         navigation.navigate('Home');
       } else {
         getDetails();
+        const token = await messaging().getToken();
+        console.log('key :' + key);
+        let headers = new Headers();
+        headers.append(
+          'Authorization',
+          'Basic ' + base64.encode('apiuser:a22323212'),
+        );
+        headers.append('Content-Type', 'application/json');
+        fetch(`${BASE_URL}/addOrUpdateGuardNotifications`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            deviceToken: token.toString(),
+            deviceType: 'string',
+            guardKey: key.toString(),
+            notify: true,
+          }),
+        })
+          .then((response) => response.json())
+          .then(async (json) => {
+            console.log('Notification response =======', json);
+            console.log('Token =============', token);
+          });
+
+        const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+          console.log(remoteMessage);
+          message_body = JSON.stringify(remoteMessage.notification.body);
+          Alert.alert('A new FCM message arrived!', message_body);
+        });
+
+        messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+          console.log('Message handled in the background!', remoteMessage);
+        });
+
+        return unsubscribe;
       }
     };
     fetchData();
@@ -69,6 +112,7 @@ const HomeScreen = ({route, navigation}) => {
     );
     headers.append('Content-Type', 'application/json');
     let key = await getKey();
+    console.log('MY KEY =============', key);
     fetch(`${BASE_URL}/plusOne/${key}`, {
       method: 'GET',
       headers: headers,
