@@ -9,6 +9,8 @@ import {
   ScrollView,
   Alert,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -63,41 +65,45 @@ const LoginScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.mainContainer}>
-      <LinearGradient
-        colors={['#A5FECB', '#20BDFF', '#5433FF']}
-        style={styles.container}>
-        <View style={styles.iconContainer}>
-          <Entypo
-            style={styles.loginIcon}
-            name="login"
-            size={80}
-            color="black"
-          />
-        </View>
-      </LinearGradient>
-      <ScrollView
-        keyboardShouldPersistTaps="always"
-        style={styles.whiteContainer}
-        contentContainerStyle={{paddingBottom: 20}}>
-        <Text style={styles.loginText}>Login</Text>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.fieldHeading}>Shop ID</Text>
-          <View style={styles.inputBox}>
-            <TextInput
-              style={styles.textInputFied}
-              placeholder="Enter shop ID"
-              onFocus={() => {
-                setTypingEmail(true);
-                setTypingPassword(false);
-              }}
-              onChangeText={(text) => {
-                setShopId(text);
-                setError('');
-              }}
+    <KeyboardAvoidingView
+      keyboardVerticalOffset={-80}
+      behavior={Platform.OS === 'ios' ? 'padding' : ''}
+      style={{flex: 1}}>
+      <View style={styles.mainContainer}>
+        <LinearGradient
+          colors={['#A5FECB', '#20BDFF', '#5433FF']}
+          style={styles.container}>
+          <View style={styles.iconContainer}>
+            <Entypo
+              style={styles.loginIcon}
+              name="login"
+              size={80}
+              color="black"
             />
-            {/* {typing_email ? (
+          </View>
+        </LinearGradient>
+        <ScrollView
+          keyboardShouldPersistTaps="always"
+          style={styles.whiteContainer}
+          contentContainerStyle={{paddingBottom: 20}}>
+          <Text style={styles.loginText}>Login</Text>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.fieldHeading}>Shop ID</Text>
+            <View style={styles.inputBox}>
+              <TextInput
+                style={styles.textInputFied}
+                placeholder="Enter shop ID"
+                onFocus={() => {
+                  setTypingEmail(true);
+                  setTypingPassword(false);
+                }}
+                onChangeText={(text) => {
+                  setShopId(text);
+                  setError('');
+                }}
+              />
+              {/* {typing_email ? (
               <View style={{marginTop: -10}}>
                 <TypingAnimation
                   dotColor="black"
@@ -110,26 +116,26 @@ const LoginScreen = ({navigation}) => {
                 />
               </View>
             ) : null} */}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.fieldHeading}>Password</Text>
-          <View style={styles.inputBox}>
-            <TextInput
-              style={styles.textInputFied}
-              placeholder="Enter password"
-              secureTextEntry={true}
-              onFocus={() => {
-                setTypingPassword(true);
-                setTypingEmail(false);
-              }}
-              onChangeText={(text) => {
-                setPassword(text);
-                setError('');
-              }}
-            />
-            {/* {typing_password ? (
+          <View style={styles.inputContainer}>
+            <Text style={styles.fieldHeading}>Password</Text>
+            <View style={styles.inputBox}>
+              <TextInput
+                style={styles.textInputFied}
+                placeholder="Enter password"
+                secureTextEntry={true}
+                onFocus={() => {
+                  setTypingPassword(true);
+                  setTypingEmail(false);
+                }}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setError('');
+                }}
+              />
+              {/* {typing_password ? (
               <View style={{marginTop: -10}}>
                 <TypingAnimation
                   dotColor="#264099"
@@ -142,21 +148,24 @@ const LoginScreen = ({navigation}) => {
                 />
               </View>
             ) : null} */}
+            </View>
           </View>
-        </View>
 
-        {error != '' ? <Text style={styles.errorMessage}>{error}</Text> : null}
+          {error != '' ? (
+            <Text style={styles.errorMessage}>{error}</Text>
+          ) : null}
 
-        <View style={styles.loginButtonContainer}>
-          <Pressable
-            style={styles.loginButton}
-            android_ripple={{color: 'rgba(0,0,0,0.2)'}}
-            onPress={() => onSubmit()}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </View>
+          <View style={styles.loginButtonContainer}>
+            <Pressable
+              style={styles.loginButton}
+              android_ripple={{color: 'rgba(0,0,0,0.2)'}}
+              onPress={() => onSubmit()}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 

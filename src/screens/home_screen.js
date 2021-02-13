@@ -6,11 +6,12 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ProgressCircle from 'react-native-progress-circle';
 import colors from '../config/colors';
-import messaging from '@react-native-firebase/messaging';
+// import messaging from '@react-native-firebase/messaging';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -33,41 +34,41 @@ const HomeScreen = ({route, navigation}) => {
         navigation.navigate('Home');
       } else {
         getDetails();
-        const token = await messaging().getToken();
-        console.log('key :' + key);
-        let headers = new Headers();
-        headers.append(
-          'Authorization',
-          'Basic ' + base64.encode('apiuser:a22323212'),
-        );
-        headers.append('Content-Type', 'application/json');
-        fetch(`${BASE_URL}/addOrUpdateGuardNotifications`, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({
-            deviceToken: token.toString(),
-            deviceType: 'string',
-            guardKey: key.toString(),
-            notify: true,
-          }),
-        })
-          .then((response) => response.json())
-          .then(async (json) => {
-            console.log('Notification response =======', json);
-            console.log('Token =============', token);
-          });
+        // const token = await messaging().getToken();
+        // console.log('key :' + key);
+        // let headers = new Headers();
+        // headers.append(
+        //   'Authorization',
+        //   'Basic ' + base64.encode('apiuser:a22323212'),
+        // );
+        // headers.append('Content-Type', 'application/json');
+        // fetch(`${BASE_URL}/addOrUpdateGuardNotifications`, {
+        //   method: 'POST',
+        //   headers: headers,
+        //   body: JSON.stringify({
+        //     deviceToken: token.toString(),
+        //     deviceType: 'string',
+        //     guardKey: key.toString(),
+        //     notify: true,
+        //   }),
+        // })
+        //   .then((response) => response.json())
+        //   .then(async (json) => {
+        //     console.log('Notification response =======', json);
+        //     console.log('Token =============', token);
+        //   });
 
-        const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-          console.log(remoteMessage);
-          message_body = JSON.stringify(remoteMessage.notification.body);
-          Alert.alert('A new FCM message arrived!', message_body);
-        });
+        // const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+        //   console.log(remoteMessage);
+        //   message_body = JSON.stringify(remoteMessage.notification.body);
+        //   Alert.alert('A new FCM message arrived!', message_body);
+        // });
 
-        messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-          console.log('Message handled in the background!', remoteMessage);
-        });
+        // messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+        //   console.log('Message handled in the background!', remoteMessage);
+        // });
 
-        return unsubscribe;
+        // return unsubscribe;
       }
     };
     fetchData();
@@ -166,79 +167,81 @@ const HomeScreen = ({route, navigation}) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#A5FECB', '#20BDFF', '#5433FF']}
-      style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{paddingBottom: 20}}
-        showsVerticalScrollIndicator={false}>
-        <View style={[styles.cardContainer, {marginTop: 70}]}>
-          <Text style={styles.cardText}>Door Name : {doorName}</Text>
-        </View>
+    <SafeAreaView style={{flex: 1}}>
+      <LinearGradient
+        colors={['#A5FECB', '#20BDFF', '#5433FF']}
+        style={styles.container}>
+        <ScrollView
+          contentContainerStyle={{paddingBottom: 20}}
+          showsVerticalScrollIndicator={false}>
+          <View style={[styles.cardContainer, {marginTop: 70}]}>
+            <Text style={styles.cardText}>Door Name : {doorName}</Text>
+          </View>
 
-        <View style={[styles.cardContainer, {marginTop: 20}]}>
-          <Text style={styles.cardText}>Shop ID : {ShopId}</Text>
-        </View>
+          <View style={[styles.cardContainer, {marginTop: 20}]}>
+            <Text style={styles.cardText}>Shop ID : {ShopId}</Text>
+          </View>
 
-        <View style={styles.progressBarContainer}>
-          <ProgressCircle
-            percent={perVal}
-            radius={100}
-            borderWidth={8}
-            color="#0B3684"
-            shadowColor="#e6e1f0"
-            bgColor={circleColor}>
-            <View style={styles.progressTextContainer}>
-              <Text style={styles.progressText}>
-                {currentLimit}/{limit}
-              </Text>
-            </View>
-          </ProgressCircle>
-        </View>
+          <View style={styles.progressBarContainer}>
+            <ProgressCircle
+              percent={perVal}
+              radius={100}
+              borderWidth={8}
+              color="#0B3684"
+              shadowColor="#e6e1f0"
+              bgColor={circleColor}>
+              <View style={styles.progressTextContainer}>
+                <Text style={styles.progressText}>
+                  {currentLimit}/{limit}
+                </Text>
+              </View>
+            </ProgressCircle>
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <Pressable
-            style={[
-              styles.functionButton,
-              {
-                marginRight: 2,
-                borderTopLeftRadius: 15,
-                borderBottomLeftRadius: 15,
-              },
-            ]}
-            android_ripple={{color: 'rgba(0,0,0,0.1)'}}
-            onPress={() => minusOne()}>
-            <MaterialCommunityIcons
-              name="minus"
-              size={40}
-              color={colors.primary}
-            />
-          </Pressable>
+          <View style={styles.buttonContainer}>
+            <Pressable
+              style={[
+                styles.functionButton,
+                {
+                  marginRight: 2,
+                  borderTopLeftRadius: 15,
+                  borderBottomLeftRadius: 15,
+                },
+              ]}
+              android_ripple={{color: 'rgba(0,0,0,0.1)'}}
+              onPress={() => minusOne()}>
+              <MaterialCommunityIcons
+                name="minus"
+                size={40}
+                color={colors.primary}
+              />
+            </Pressable>
 
-          <Pressable
-            style={[
-              styles.functionButton,
-              {
-                marginLeft: 2,
-                borderTopRightRadius: 15,
-                borderBottomRightRadius: 15,
-              },
-            ]}
-            android_ripple={{color: 'rgba(0,0,0,0.1)'}}
-            onPress={() => addOne()}>
-            <MaterialIcons name="add" size={40} color={colors.primary} />
-          </Pressable>
+            <Pressable
+              style={[
+                styles.functionButton,
+                {
+                  marginLeft: 2,
+                  borderTopRightRadius: 15,
+                  borderBottomRightRadius: 15,
+                },
+              ]}
+              android_ripple={{color: 'rgba(0,0,0,0.1)'}}
+              onPress={() => addOne()}>
+              <MaterialIcons name="add" size={40} color={colors.primary} />
+            </Pressable>
+          </View>
+        </ScrollView>
+        <View style={styles.settingsButtonContainer}>
+          <MaterialIcons
+            name="settings"
+            size={30}
+            color={colors.secondary}
+            onPress={() => navigation.navigate('Settings', {ShopId: ShopId})}
+          />
         </View>
-      </ScrollView>
-      <View style={styles.settingsButtonContainer}>
-        <MaterialIcons
-          name="settings"
-          size={30}
-          color={colors.secondary}
-          onPress={() => navigation.navigate('Settings', {ShopId: ShopId})}
-        />
-      </View>
-    </LinearGradient>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {View, Text, StyleSheet, Pressable, SafeAreaView} from 'react-native';
 import colors from '../config/colors';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -41,40 +41,46 @@ const SettingsScreen = ({route, navigation}) => {
   }
 
   return (
-    <LinearGradient
-      colors={['#A5FECB', '#20BDFF', '#5433FF']}
-      style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Pressable
-          style={{
-            height: '100%',
-            justifyContent: 'center',
-            paddingHorizontal: 10,
-          }}
-          android_ripple={{color: 'rgba(0,0,0,0.05)'}}
-          onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={30} color={colors.secondary} />
-        </Pressable>
-      </View>
+    <SafeAreaView style={{flex: 1}}>
+      <LinearGradient
+        colors={['#A5FECB', '#20BDFF', '#5433FF']}
+        style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Pressable
+            style={{
+              height: '100%',
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+            }}
+            android_ripple={{color: 'rgba(0,0,0,0.05)'}}
+            onPress={() => navigation.goBack()}>
+            <MaterialIcons
+              name="arrow-back"
+              size={30}
+              color={colors.secondary}
+            />
+          </Pressable>
+        </View>
 
-      <View style={styles.cardContainer}>
-        <Text style={styles.cardText}>Door Name : {doorName}</Text>
-        <Text style={styles.cardText}>Shop ID : {ShopId}</Text>
-        <Text style={styles.cardText}>Allowed Limit : {limit}</Text>
-      </View>
+        <View style={styles.cardContainer}>
+          <Text style={styles.cardText}>Door Name : {doorName}</Text>
+          <Text style={styles.cardText}>Shop ID : {ShopId}</Text>
+          <Text style={styles.cardText}>Allowed Limit : {limit}</Text>
+        </View>
 
-      <View style={styles.logoutButtonContainer}>
-        <Pressable
-          style={styles.logoutButton}
-          android_ripple={{color: 'rgba(0,0,0,0.1)'}}
-          onPress={() => {
-            logOut();
-            navigation.navigate('Login');
-          }}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </Pressable>
-      </View>
-    </LinearGradient>
+        <View style={styles.logoutButtonContainer}>
+          <Pressable
+            style={styles.logoutButton}
+            android_ripple={{color: 'rgba(0,0,0,0.1)'}}
+            onPress={() => {
+              logOut();
+              navigation.navigate('Login');
+            }}>
+            <Text style={styles.buttonText}>Logout</Text>
+          </Pressable>
+        </View>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
