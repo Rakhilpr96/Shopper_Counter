@@ -22,12 +22,48 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
+import firestore from '@react-native-firebase/firestore';
+
 const LoginScreen = ({navigation}) => {
   const [typing_email, setTypingEmail] = useState(false);
   const [typing_password, setTypingPassword] = useState(false);
   const [Password, setPassword] = useState('');
   const [ShopId, setShopId] = useState('');
   const [error, setError] = useState('');
+
+  const addShopId = (ShopId) => {
+    // firestore()
+    //   .collection('Shops')
+    //   .doc(ShopId.toString())
+    //   .get()
+    //   .then((documentSnapshot) => {
+    //     if (documentSnapshot.exists) {
+    //       console.log('ShopID exist in firestore');
+    //     } else {
+    //       firestore()
+    //         .collection('Shops')
+    //         .doc(ShopId.toString())
+    //         .set({
+    //           depotCurrentLimit: 0,
+    //           depotLimit: 0,
+    //         })
+    //         .then(() => {
+    //           console.log('ShopId added!');
+    //         });
+    //     }
+    //   });
+
+    firestore()
+      .collection('Shops')
+      .doc(ShopId.toString())
+      .set({
+        depotCurrentLimit: '',
+        depotLimit: '',
+      })
+      .then(() => {
+        console.log('ShopId added!');
+      });
+  };
 
   const onSubmit = () => {
     Keyboard.dismiss();
@@ -56,6 +92,7 @@ const LoginScreen = ({navigation}) => {
             console.log('jSON KEY :', json.key);
             await AsyncStorage.setItem('key', json.key);
             console.log(AsyncStorage.getItem('key'));
+            addShopId(ShopId);
             navigation.navigate('Home', {ShopId: ShopId});
           } else {
             setError(json.message);
@@ -94,6 +131,7 @@ const LoginScreen = ({navigation}) => {
               <TextInput
                 style={styles.textInputFied}
                 placeholder="Enter shop ID"
+                autoCapitalize="characters"
                 onFocus={() => {
                   setTypingEmail(true);
                   setTypingPassword(false);

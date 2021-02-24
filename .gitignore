@@ -27,6 +27,7 @@ build/
 .idea
 .gradle
 local.properties
+java_pid1628.hprof
 *.iml
 
 # node.js

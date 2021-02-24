@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ProgressCircle from 'react-native-progress-circle';
@@ -19,7 +20,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {BASE_URL, getKey} from '../helpers/user';
 import base64 from 'react-native-base64';
 
+import firestore from '@react-native-firebase/firestore';
+
 const HomeScreen = ({route, navigation}) => {
+  const [didMount, setDidMount] = useState(false);
+  const [shopIDState, setShopIDState] = useState(false);
   const [ShopId, setShopId] = useState('');
   const [doorName, setDoorName] = useState('');
   const [limit, setLimit] = useState('');
@@ -28,6 +33,7 @@ const HomeScreen = ({route, navigation}) => {
   const [circleColor, setCircleColor] = useState('#32a852');
 
   useEffect(() => {
+    setDidMount(true);
     const fetchData = async () => {
       let key = await getKey();
       if (!key) {
@@ -47,7 +53,7 @@ const HomeScreen = ({route, navigation}) => {
           headers: headers,
           body: JSON.stringify({
             deviceToken: token.toString(),
-            deviceType: 'string',
+            deviceType: Platform.OS,
             guardKey: key.toString(),
             notify: true,
           }),
@@ -68,11 +74,37 @@ const HomeScreen = ({route, navigation}) => {
           console.log('Message handled in the background!', remoteMessage);
         });
 
-        return unsubscribe;
+        const subscriber = firestore()
+          .collection('Shops')
+          .doc(route.params.ShopId.toString())
+          .onSnapshot((documentSnapshot) => {
+            setCurrentLimit(documentSnapshot.data().depotCurrentLimit);
+            setLimit(documentSnapshot.data().depotLimit);
+            console.log('Shop Details : ', documentSnapshot.data());
+            calculatePercent(
+              documentSnapshot.data().depotCurrentLimit,
+              documentSnapshot.data().depotLimit,
+            );
+          });
+
+        return () => {
+          subscriber();
+          unsubscribe;
+          setDidMount(false);
+        };
+
+        // return unsubscribe;
       }
     };
     fetchData();
   }, []);
+
+  const updateFirestore = (depotCurrentLimit, depotLimit, shopid) => {
+    firestore().collection('Shops').doc(shopid).update({
+      depotCurrentLimit: depotCurrentLimit,
+      depotLimit: depotLimit,
+    });
+  };
 
   const getDetails = async () => {
     let headers = new Headers();
@@ -95,12 +127,20 @@ const HomeScreen = ({route, navigation}) => {
         if (json.error) {
           navigation.navigate('Home');
         }
-        console.log(json.guard);
+        console.log(json.guard.notAllowReason);
+        json.guard.notAllowReason != null
+          ? Alert.alert(json.guard.notAllowReason)
+          : null;
         setCurrentLimit(json.depotCurrentLimit);
         setLimit(json.depotLimit);
         setDoorName(json.guard.name);
         setShopId(route.params.ShopId);
         calculatePercent(json.depotCurrentLimit, json.depotLimit);
+        updateFirestore(
+          json.depotCurrentLimit,
+          json.depotLimit,
+          route.params.ShopId,
+        );
       });
   };
 
@@ -114,6 +154,7 @@ const HomeScreen = ({route, navigation}) => {
     headers.append('Content-Type', 'application/json');
     let key = await getKey();
     console.log('MY KEY =============', key);
+
     fetch(`${BASE_URL}/plusOne/${key}`, {
       method: 'GET',
       headers: headers,
@@ -124,11 +165,13 @@ const HomeScreen = ({route, navigation}) => {
         // setMessage('Person was let in, recorded successfully');
         setCurrentLimit(json.depotCurrentLimit);
         setLimit(json.depotLimit);
+        updateFirestore(json.depotCurrentLimit, json.depotLimit, ShopId);
         calculatePercent(json.depotCurrentLimit, json.depotLimit);
         // if (!json.allowPerson) {
         //   setMessage(json.notAllowReason);
         // }
-      });
+      })
+      .catch((error) => alert(error));
   };
 
   const minusOne = async () => {
@@ -150,8 +193,10 @@ const HomeScreen = ({route, navigation}) => {
         // setMessage('Person was let out, recorded successfully');
         setCurrentLimit(json.depotCurrentLimit);
         setLimit(json.depotLimit);
+        updateFirestore(json.depotCurrentLimit, json.depotLimit, ShopId);
         calculatePercent(json.depotCurrentLimit, json.depotLimit);
-      });
+      })
+      .catch((error) => alert(error));
   };
 
   const calculatePercent = (currentLimit, limit) => {
