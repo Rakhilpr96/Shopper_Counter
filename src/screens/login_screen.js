@@ -131,6 +131,7 @@ const LoginScreen = ({navigation}) => {
               <TextInput
                 style={styles.textInputFied}
                 placeholder="Enter shop ID"
+                placeholderTextColor="rgba(0,0,0,0.4)"
                 autoCapitalize="characters"
                 onFocus={() => {
                   setTypingEmail(true);
@@ -163,6 +164,7 @@ const LoginScreen = ({navigation}) => {
               <TextInput
                 style={styles.textInputFied}
                 placeholder="Enter password"
+                placeholderTextColor="rgba(0,0,0,0.4)"
                 secureTextEntry={true}
                 onFocus={() => {
                   setTypingPassword(true);
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     paddingHorizontal: 15,
-    paddingVertical: 15,
+    paddingTop: 15,
   },
   fieldHeading: {
     fontSize: 16,
@@ -261,7 +263,9 @@ const styles = StyleSheet.create({
   },
   textInputFied: {
     flex: 0.85,
-    marginTop: 10,
+    paddingTop: 15,
+    paddingBottom: 30,
+    paddingLeft: 5,
     // backgroundColor: 'rgba(0,0,0,0.2)',
   },
   loginButtonContainer: {
