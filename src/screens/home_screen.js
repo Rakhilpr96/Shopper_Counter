@@ -171,7 +171,7 @@ const HomeScreen = ({route, navigation}) => {
         //   setMessage(json.notAllowReason);
         // }
       })
-      .catch((error) => alert(error));
+      .catch((error) => Alert.alert(error));
   };
 
   const minusOne = async () => {
