@@ -3,6 +3,8 @@ import React, {useEffect} from 'react';
 import Alert from 'react-native';
 import MainNavigation from './src/navigation/main_navigation';
 import messaging from '@react-native-firebase/messaging';
+import SplashScreen from 'react-native-splash-screen';
+
 
 const App = () => {
   useEffect(() => {
@@ -23,6 +25,8 @@ const App = () => {
     if (enabled) {
       console.log('Authorization status:', authStatus);
     }
+    SplashScreen.hide();
+
     return unsubscribe;
   }, []);
   return <MainNavigation />;
